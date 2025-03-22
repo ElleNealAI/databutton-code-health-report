@@ -13,16 +13,9 @@ A plug-and-play code health analysis tool for Databutton apps that helps you mon
 
 ## Installation
 
-WIP - Task Instructions 
+WIP - Task Instructions for Databutton Agent
 
-### Method 2: Manual Installation
-1. Clone or download this repository.
-2. Copy the files to your Databutton workspace:
-   - Backend API to `src/app/apis/code_history/`
-   - UI components to `ui/src/components/`
-   - UI utility to `ui/src/utils/`
-   - Page component to `ui/src/pages/`
-3. Add the `CodeHealthHistory` page to your app navigation.
+WIP - manually add files to your Databutton Application
 
 ## Usage
 
