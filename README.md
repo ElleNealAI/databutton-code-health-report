@@ -13,10 +13,7 @@ A plug-and-play code health analysis tool for Databutton apps that helps you mon
 
 ## Installation
 
-### Method 1: AI-Assisted Installation
-1. Share this repository URL with your Databutton AI assistant.
-2. Ask: "Please install the code health report tool from this GitHub repository."
-3. The AI will set up all necessary components in your workspace.
+WIP - Task Instructions 
 
 ### Method 2: Manual Installation
 1. Clone or download this repository.
