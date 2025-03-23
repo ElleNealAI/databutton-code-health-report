@@ -16,13 +16,13 @@ A plug-and-play code health analysis tool for Databutton apps that helps you mon
 
 ### Task Instructions for Databutton Agent - TODO
 
-### Maually Add Files
+### Manually Add Files
 You can manually add these files to your own Databutton project. 
 
 **Step 1: Add code to your Databutton Project**
-1. Create a new page called `CodeHealth`, click on the elipses on the new page and click **'Set read-only for agent'**.
+1. Create a new page called `CodeHealth`, click on the ellipses on the new page and click **'Set read-only for agent'**.
 2. Click **'Edit Code'** Copy the code from this file [CodeHealth.tsx](https://github.com/ElleNealAI/databutton-code-health-report/blob/main/ui/pages/CodeHealth.tsx) and replace the existing code.
-3. Create a new API called `code_history`, click on the elipses on the new API and click **'Set read-only for agent'**.
+3. Create a new API called `code_history`, click on the ellipses on the new API and click **'Set read-only for agent'**.
 4. Copy the code from this file [code_history.py](https://github.com/ElleNealAI/databutton-code-health-report/blob/main/backend/code_history.py) and replace the existing code.
 
 **Step 2: Run your report**
