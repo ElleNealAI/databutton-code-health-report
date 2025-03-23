@@ -8,20 +8,33 @@ A plug-and-play code health analysis tool for Databutton apps that helps you mon
 - 📈 **Historical Tracking**: Records code health metrics over time to track improvements.
 - 🔍 **Detailed Component Analysis**: Identifies specific issues in each file.
 - 📱 **Interactive Dashboard**: Visual representation of code health with charts and tables.
-- 🔄 **Firestore Analysis**: Additional insights for apps using Firestore.
 - 🛠️ **Actionable Recommendations**: Provides specific suggestions to improve code quality.
 
 ## Installation
 
-WIP - Task Instructions for Databutton Agent
+### Task Instructions for Databutton Agent - TODO
 
-WIP - manually add files to your Databutton Application
+### Maually Add Files
+You can manually add these files to your own Databutton project. 
+
+**Step 1: Add code to your Databutton Project**
+1. Create a new page called `CodeHealth`, click on the elipses on the new page and click **'Set read-only for agent'**.
+2. Click **'Edit Code'** Copy the code from this file [CodeHealth.tsx](https://github.com/ElleNealAI/databutton-code-health-report/blob/main/ui/pages/CodeHealth.tsx) and replace the existing code.
+3. Create a new API called `code_history`, click on the elipses on the new API and click **'Set read-only for agent'**.
+4. Copy the code from this file [code_history.py](https://github.com/ElleNealAI/databutton-code-health-report/blob/main/backend/code_history.py) and replace the existing code.
+
+**Step 2: Run your report**
+Navigate to the CodeHealth page and click **'Run New Analysis'**
+
+This will trigger the API which will collect code health data about your Databutton application. A file will be created in Databutton storage called `code-health-history`
 
 ## Usage
 
 ### Running a Code Health Analysis
-1. Navigate to the **Code Health History** page in your app.
-2. Click the **"Analyze Codebase"** button.
+You can run the analysis as many times as you need, this will provide you with a current snapshot of your code health and provide insights to improve it.
+
+1. Navigate to the **CodeHealth** page in your app.
+2. Click the **'Run New Analysis'** button.
 3. View the overall score and detailed metrics for your app.
 
 | Quality Check Type      | What It Means | Why It Matters | Consequences If Ignored |
@@ -48,17 +61,12 @@ WIP - manually add files to your Databutton Application
 
 ### Frontend
 - **CodeHealthHistory**: Main dashboard page displaying all metrics.
-- **CodeHealthChart**: Visualizes historical health data.
-- **FinalScoreTable**: Displays detailed scores by component.
-- **SectionAccordion**: Expandable UI for organizing detailed metrics.
-- **codeHealthUtils**: Helper functions for processing health data.
 
 ## Dependencies
 - **Frontend**: React, Recharts, Tailwind CSS.
 - **Backend**: FastAPI, Databutton SDK.
 
 ## Troubleshooting
-- **Missing Charts**: Ensure Recharts is installed in your project.
 - **API Errors**: Check that the `code_history` API is correctly installed.
 - **Empty History**: Run an initial analysis to generate historical data.
 
