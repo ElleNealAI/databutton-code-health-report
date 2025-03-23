@@ -8,8 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { AlertTriangle, ArrowDown, ArrowUp, Code, Copy, File, FileText, Gauge, Info as InfoIcon, Minus, MessageSquare, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, Code, Copy, File, FileText, Gauge, Info, Minus, MessageSquare, RefreshCw } from "lucide-react";
 import brain from "brain";
 
 interface HealthHistoryEntry {
@@ -71,36 +70,18 @@ const calculateFileAvgScore = (file: any) => {
 
 // Helper function to categorize files by path
 const categorizeFileByPath = (filepath: string): string => {
-  // Strip leading slashes for consistent matching
-  const normalizedPath = filepath.replace(/^\/+/, '');
-  
-  console.log(`Categorizing path: ${normalizedPath}`);
-  
-  // Check for API files first (multiple patterns)
-  if (
-    normalizedPath.includes('app/apis/') || 
-    normalizedPath.includes('src/app/apis/') ||
-    normalizedPath.includes('apis/') ||
-    normalizedPath.match(/apis\/[^\/]+\/__init__.py/) ||
-    normalizedPath.match(/apis\/[^\/]+\/.*\.py/) ||
-    normalizedPath.match(/api\/[^\/]+/) ||
-    normalizedPath.includes('/api/')
-  ) {
-    console.log(`Identified API file: ${normalizedPath}`);
-    return "API Files";
-  }
-  
-  // Then check other categories
-  if (normalizedPath.includes('/pages/')) {
+  if (filepath.includes('/pages/')) {
     return "Pages";
-  } else if (normalizedPath.includes('/components/')) {
+  } else if (filepath.includes('/components/')) {
     return "Components";
-  } else if (normalizedPath.includes('/utils/') || normalizedPath.includes('/src/utils/')) {
+  } else if (filepath.includes('/utils/') || filepath.includes('/src/utils/')) {
     return "UI Files";
+  } else if (filepath.includes('/apis/') || filepath.includes('/api/') || filepath.includes('src/app/apis/')) {
+    return "API Files";
   } else {
     return "Other";
   }
-};;
+};
 
 const CodeHealth: React.FC = () => {
   const [healthHistory, setHealthHistory] = useState<HealthHistoryEntry[]>([]);
@@ -133,34 +114,10 @@ const CodeHealth: React.FC = () => {
   const runNewAnalysis = async () => {
     try {
       setLoading(true);
-      // Make API calls in sequence
-      console.log("Starting code health analysis");
-      const analyzeResult = await brain.analyze_code_health();
-      console.log("Analysis completed, fetching history");
+      await brain.analyze_code_health();
       const response = await brain.get_health_check_history();
       const data = await response.json();
-      
-      // Check if we have an APIs component
-      const analyzeData = await analyzeResult.json();
-      const hasApiComponent = analyzeData.components.some(c => c.name === "APIs");
-      console.log("API component found in results:", hasApiComponent);
-      
-      // Log API files for debugging
-      const apiFiles = analyzeData.components
-        .filter(c => c.name === "APIs")
-        .flatMap(comp => comp.files.map(file => ({
-          component: comp.name,
-          filepath: file.filepath,
-          score: calculateFileAvgScore(file)
-        })));
-        
-      console.log(`API component found:\nAPIs\nwith\n${apiFiles.length}\nfiles`);
-      apiFiles.forEach(file => {
-        console.log(`Identified API file:\n${file.filepath}`);
-      });
-      
       setHealthHistory(data);
-      console.log("Analysis and history update completed");
     } catch (err) {
       console.error("Error running code health check:", err);
       setError("Failed to run code health analysis");
@@ -241,11 +198,6 @@ const CodeHealth: React.FC = () => {
     
     // Process current files
     latestEntry.results.components.forEach(component => {
-      // Debug for API component
-      if (component.name === "APIs") {
-        console.log("API component found:", component.name, "with", component.files.length, "files");
-      }
-      
       component.files.forEach(file => {
         const avgScore = calculateFileAvgScore(file);
         const previousScore = previousScores[file.filepath] || avgScore;
@@ -287,24 +239,16 @@ const CodeHealth: React.FC = () => {
     return latestEntry.results.recommendations;
   };
 
-  // This function is no longer needed as the API now calculates the true score correctly
-
-
   // Render File Metrics Card
   const renderFileMetricsCard = (file: any) => {
     // Extract filename from path
     const filename = file.filepath.split('/').pop();
     
-    // For API __init__.py files, display the API module name instead
-    const displayName = file.filepath.includes('apis/') && filename === '__init__.py'
-      ? file.filepath.split('/').slice(-2, -1)[0]  // Get the API module name
-      : filename;
-    
     return (
       <Card key={file.filepath} className="mb-4">
         <CardHeader className="pb-2">
           <div className="flex justify-between items-center">
-            <CardTitle className="text-sm font-medium">{displayName}</CardTitle>
+            <CardTitle className="text-sm font-medium">{filename}</CardTitle>
             <div className="flex items-center gap-2">
               <Badge variant={getBadgeVariant(file.score)}>{file.score}/100</Badge>
               {showTrends && healthHistory.length > 1 && (
@@ -454,21 +398,7 @@ const CodeHealth: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>
           <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <CardTitle className="text-base">Health Score</CardTitle>
-              <TooltipProvider delayDuration={300}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button className="inline-flex">
-                      <InfoIcon className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="max-w-xs p-2 text-xs">
-                    Calculated as the sum of all individual metric scores divided by total possible points
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+            <CardTitle className="text-base">Current Health Score</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4">
@@ -610,12 +540,7 @@ const CodeHealth: React.FC = () => {
                             <TableRow key={file.filepath}>
                               <TableCell className="font-medium">
                                 <div className="flex items-center gap-2">
-                                  <div className="truncate max-w-[350px]">
-                                    {/* For API __init__.py files, use the module name instead */}
-                                    {file.filepath.includes('apis/') && filename === '__init__.py'
-                                      ? file.filepath.split('/').slice(-2, -1)[0] // Get API module name
-                                      : filename}
-                                  </div>
+                                  <div className="truncate max-w-[350px]">{filename}</div>
                                   {showTrends && healthHistory.length > 1 && (
                                     <ScoreTrend filepath={file.filepath} />
                                   )}
@@ -771,60 +696,6 @@ const CodeHealth: React.FC = () => {
               ) : (
                 <p className="text-muted-foreground">No recommendations available.</p>
               )}
-            </CardContent>
-          </Card>
-          
-          {/* API Detection Debug Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle>API Detection Debug</CardTitle>
-              <CardDescription>
-                Information about API file detection for troubleshooting
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {latestEntry.results.components
-                  .filter(c => c.name === "APIs")
-                  .map((apiComponent, i) => (
-                    <div key={i} className="space-y-2">
-                      <p>API Component found with {apiComponent.files.length} files</p>
-                      <div className="bg-muted p-3 rounded overflow-auto max-h-[200px]">
-                        <pre className="whitespace-pre-wrap text-xs">
-                          {apiComponent.files.map(file => (
-                            `${file.filepath} (Score: ${calculateFileAvgScore(file)})\n`
-                          )).join('')}
-                        </pre>
-                      </div>
-                    </div>
-                  ))
-                }
-                {latestEntry.results.components.filter(c => c.name === "APIs").length === 0 && (
-                  <Alert variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>No API Component Found</AlertTitle>
-                    <AlertDescription>
-                      The analyzer did not detect an API component in your codebase.
-                      This might be due to the file detection logic not matching your API structure.
-                    </AlertDescription>
-                  </Alert>
-                )}
-                
-                <div className="mt-4">
-                  <h4 className="font-medium mb-2">API Path Detection Patterns:</h4>
-                  <div className="bg-muted p-3 rounded">
-                    <pre className="whitespace-pre-wrap text-xs">
-                      - app/apis/
-                      - src/app/apis/
-                      - apis/
-                      - apis/[folder]/__init__.py
-                      - apis/[folder]/*.py
-                      - api/[folder]
-                      - /api/
-                    </pre>
-                  </div>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
