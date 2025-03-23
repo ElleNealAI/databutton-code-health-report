@@ -427,7 +427,8 @@ def analyze_section(section, section_type):
         "ui/src/components/.gitkeep",
         "ui/src/utils/.gitkeep",
         "src/app/__init__.py",
-        "src/app/apis/__init__.py"
+        "src/app/apis/__init__.py",
+        "src/app/apis/code_history/__init__.py"
     ]
     file_contents, code_blocks = _collect_file_contents(section, is_api=(section_type=="api"), excluded_files=excluded_files)
     file_duplications = aggregate_duplications(code_blocks)
